@@ -15,12 +15,13 @@ static size_t	ft_unsigned_recursive(unsigned int nbr)
 	return (count);
 }
 
-size_t	ft_unsigned_int(unsigned int nbr)
+size_t	ft_unsigned_int(int nbr)
 {
-	if (nbr == 0)
-	{
-		write(1, "0", 1);
-		return (1);
-	}
-	return (ft_unsigned_recursive(nbr));
+	unsigned int	u_nbr;
+
+	if (nbr < 0)
+		u_nbr = (unsigned int)nbr;
+	else
+		u_nbr = nbr;
+	return (ft_unsigned_recursive(u_nbr));
 }

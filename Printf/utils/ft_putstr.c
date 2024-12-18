@@ -3,9 +3,11 @@
 
 size_t	ft_putstr(const char *str)
 {
-	size_t	str_len;
+	size_t	len;
 
-	str_len = ft_strlen(str); 
-	write(1, str, str_len);
-	return (str_len);
+	if (!str)
+		return (0);
+	len = ft_strlen(str);
+	write(1, str, len);
+	return (len);
 }

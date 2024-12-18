@@ -5,8 +5,14 @@ CFLAGS = -Wall -Werror -Wextra
 
 # Files
 NAME = libftprintf.a
-SRC_FILES = main.c ft_printf.c utils/ft_hexdec_high.c utils/ft_hexdec_low.c utils/ft_putchar.c utils/ft_putstr.c utils/ft_strlen.c utils/ft_strcpy.c utils/ft_putnbr.c utils/ft_pointer.c utils/ft_unsigned_int.c
-OBJ_FILES = $(SRC_FILES: %.c=%.o)
+SRC_FILES = \
+	    ft_printf.c ft_print_char.c ft_print_str.c ft_print_dec.c \
+	    ft_print_hexx.c ft_print_hexl.c ft_print_u.c ft_print_ptr.c ft_print_percent.c \
+	    utils/ft_hexdec_high.c utils/ft_hexdec_low.c utils/ft_putchar.c \
+	    utils/ft_putstr.c utils/ft_strlen.c utils/ft_strcpy.c utils/ft_putnbr.c \
+	    utils/ft_pointer.c utils/ft_unsigned_int.c
+
+OBJ_FILES = $(SRC_FILES:%.c=%.o)
 TARGET = program
 
 all: $(NAME)
@@ -16,24 +22,24 @@ $(NAME): $(OBJ_FILES)
 	@ar rcs $@ $^
 	@echo "LIbrary $(NAME) created successfully."
 
-# Create an executable file
-$(TARGET): $(OBJ_FILES)
-	$(CC) $(CFLAGS) $(OBJ_FILES) -o $@
-	@echo "$(TARGET) Successfully created"
-
 # Compile each source file into an object file
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiled $< to $@ successfully."
 
+# Create an executable file
+$(TARGET): $(NAME)
+	$(CC) $(CFLAGS) $(OBJ_FILES) -L. -lftprintf -o $@
+	@echo "$(TARGET) Successfully created"
+
 run: $(TARGET)
 	./$(TARGET)
 
 clean:
-	@rm -rf *.o
+	@rm -rf *.o */*.o
 	@echo "Object files removed successfully"
 
-fclean:
+fclean: clean
 	@rm -rf $(NAME) $(TARGET)
 	@echo "$(NAME)  & $(TARGET) removed."
 
