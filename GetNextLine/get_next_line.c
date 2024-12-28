@@ -1,5 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/23 16:29:07 by foogungb          #+#    #+#             */
+/*   Updated: 2024/12/02 14:20:27 by foogungb         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
-#include <string.h>
+
+static char	*ft_strchr(const char *s, int c)
+{
+	if (!s)
+		return (NULL);
+	while (*s)
+	{
+		if (*s == (char)c)
+			return ((char *)s);
+		s++;
+	}
+	if (*s == (char)c)
+		return ((char *)s);
+	return (NULL);
+}
 
 static char	*ft_strndup(const char *s, size_t n)
 {
@@ -22,21 +48,21 @@ static char	*ft_strndup(const char *s, size_t n)
 }
 
 
-char *extract_line(char **storage)
+static char *extract_line(char **storage)
 {
 	char *newline;
 	char *line;
-	char *remaining;
+	char *rest;
 	size_t	line_len;
 
-	newline = strchr(*storage, '\n');
+	newline = ft_strchr(*storage, '\n');
 	if (newline)
 	{
 		line_len = newline - *storage + 1;
 		line = ft_strndup(*storage, line_len);
-		remaining = ft_strdup(newline + 1);
+		rest = ft_strdup(newline + 1);
 		free(*storage);
-		*storage = remaining;
+		*storage = rest;
 	}
 	else
 	{
