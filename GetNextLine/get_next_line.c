@@ -47,60 +47,81 @@ static char	*ft_strndup(const char *s, size_t n)
 	return (m);
 }
 
-
-static char *extract_line(char **storage)
+static char	*extract_line(char **storage)
 {
-	char *newline;
-	char *line;
-	char *rest;
+	char	*newline;
+	char	*line;
+	char	*rest;
 	size_t	line_len;
 
 	newline = ft_strchr(*storage, '\n');
-	if (newline)
-	{
-		line_len = newline - *storage + 1;
-		line = ft_strndup(*storage, line_len);
-		rest = ft_strdup(newline + 1);
-		free(*storage);
-		*storage = rest;
-	}
-	else
+	if (!newline)
 	{
 		line = ft_strdup(*storage);
 		free(*storage);
 		*storage = NULL;
+		return (line);
 	}
-	return line;
+	line_len = newline - *storage + 1;
+	line = ft_strndup(*storage, line_len);
+	rest = ft_strdup(newline + 1);
+	free(*storage);
+	*storage = rest;
+	if (!*storage || !**storage)
+	{
+		free(*storage);
+		*storage = NULL;
+	}
+	return (line);
+}
+
+static char	*free_m(char **buffer, char **storage)
+{
+	free(*storage);
+	free(buffer);
+	*storage = NULL;
+	return (NULL);
 }
 
 char	*get_next_line(int fd)
 {
-	char	*buffer;
-	size_t	bytes_read;
+	ssize_t		bytes_read;
+	char		*buffer;
+	char		*temp;
 	static char	*storage;
 
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
 	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buffer)
 		return (NULL);
-	if (!storage)
-		storage = ft_strdup("");
 	while (!ft_strchr(storage, '\n'))
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read <= 0)
-			break;
+		if (bytes_read < 0)
+			free_m(&buffer, &storage);
+		if (bytes_read == 0)
+			break ;
 		buffer[bytes_read] = '\0';
-		storage = ft_strjoin(storage, buffer);
+		temp = ft_strjoin(storage, buffer);
+		if (!temp)
+			free_m(&buffer, &storage);
+		free(storage);
+		storage = temp;
 	}
 	free(buffer);
 	if (!storage || !*storage)
+	{
+		free(storage);
+		storage = NULL;
 		return (NULL);
+	}
 	return (extract_line(&storage));
 }
 
 int	main(void)
 {
-	int	fd;
+	int		fd;
 	char	*str;
 
 	fd = open("ex.txt", O_RDONLY);
@@ -108,7 +129,10 @@ int	main(void)
 		return (1);
 	while ((str = get_next_line(fd)) != NULL)
 	{
+		printf("sleep ...\n");
+		sleep(2);
 		printf("%s", str);
+		printf("wake ..\n");
 		free(str);
 	}
 	close(fd);
