@@ -75,19 +75,43 @@ static char	*extract_line(char **storage)
 	return (line);
 }
 
-static char	*free_m(char **buffer, char **storage)
+static char	*line(int *fd, char **buffer, char **storage)
 {
-	free(*storage);
-	free(buffer);
-	*storage = NULL;
-	return (NULL);
+	char	*temp;
+	ssize_t	bytes_read;
+	int	counter;
+
+	counter = 0;
+	while (!ft_strchr(*storage, '\n'))
+	{
+		bytes_read = read(*fd, *buffer, BUFFER_SIZE);
+		printf("[s:%2d] (%s)\n\n", counter++, *storage);
+		printf("[b:%2d] (%s)\n\n", counter, *buffer);
+		if (bytes_read < 0)
+		{
+			free(*storage);
+			*storage = NULL;
+			return (NULL);
+		}
+		if (bytes_read == 0)
+			break ;
+		(*buffer)[bytes_read] = '\0';
+		temp = ft_strjoin(*storage, *buffer);
+		if (!temp)
+		{
+			free(*storage);
+			*storage = NULL;
+			return (NULL);
+		}
+		free(*storage);
+		*storage = temp;
+	}
+	return (*storage);
 }
 
 char	*get_next_line(int fd)
 {
-	ssize_t		bytes_read;
 	char		*buffer;
-	char		*temp;
 	static char	*storage;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
@@ -95,20 +119,9 @@ char	*get_next_line(int fd)
 	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buffer)
 		return (NULL);
-	while (!ft_strchr(storage, '\n'))
-	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read < 0)
-			free_m(&buffer, &storage);
-		if (bytes_read == 0)
-			break ;
-		buffer[bytes_read] = '\0';
-		temp = ft_strjoin(storage, buffer);
-		if (!temp)
-			free_m(&buffer, &storage);
-		free(storage);
-		storage = temp;
-	}
+	storage = line(&fd, &buffer, &storage);
+	printf("\n--s(%s)--\n", storage);
+	printf("\n--b(%s)--\n", buffer);
 	free(buffer);
 	if (!storage || !*storage)
 	{
@@ -117,24 +130,4 @@ char	*get_next_line(int fd)
 		return (NULL);
 	}
 	return (extract_line(&storage));
-}
-
-int	main(void)
-{
-	int		fd;
-	char	*str;
-
-	fd = open("ex.txt", O_RDONLY);
-	if (fd < 0)
-		return (1);
-	while ((str = get_next_line(fd)) != NULL)
-	{
-		printf("sleep ...\n");
-		sleep(2);
-		printf("%s", str);
-		printf("wake ..\n");
-		free(str);
-	}
-	close(fd);
-	return (0);
 }
