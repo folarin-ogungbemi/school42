@@ -1,5 +1,17 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/01/17 20:12:13 by foogungb          #+#    #+#              #
+#    Updated: 2025/01/17 20:23:56 by foogungb         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 CC = cc
-VALUE = 5
+VALUE = 1 
 CFLAGS = -Wall -Werror -Wextra -D BUFFER_SIZE=$(VALUE)
 SCR_FILES = get_next_line.c get_next_line_utils.c main.c
 OBJ_FILES = $(SCR_FILES:%.c=%.o)

@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/23 16:29:07 by foogungb          #+#    #+#             */
-/*   Updated: 2024/12/02 14:20:27 by foogungb         ###   ########.fr       */
+/*   Created: 2025/01/16 14:44:45 by foogungb          #+#    #+#             */
+/*   Updated: 2025/01/17 20:08:54 by foogungb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,6 @@ static char	*extract_line(char **storage)
 	char	*newline;
 	char	*line;
 	char	*rest;
-	size_t	line_len;
 
 	newline = ft_strchr(*storage, '\n');
 	if (!newline)
@@ -62,12 +61,13 @@ static char	*extract_line(char **storage)
 		*storage = NULL;
 		return (line);
 	}
-	line_len = newline - *storage + 1;
-	line = ft_strndup(*storage, line_len);
+	line = ft_strndup(*storage, (newline - *storage + 1));
 	rest = ft_strdup(newline + 1);
 	free(*storage);
 	*storage = rest;
-	if (!*storage || !**storage)
+	if (!*storage)
+		*storage = NULL;
+	if (!**storage)
 	{
 		free(*storage);
 		*storage = NULL;
@@ -75,34 +75,22 @@ static char	*extract_line(char **storage)
 	return (line);
 }
 
-static char	*line(int *fd, char **buffer, char **storage)
+static char	*parse_storage(int *fd, char **storage, char **buffer)
 {
-	char	*temp;
 	ssize_t	bytes_read;
-	int	counter;
+	char	*temp;
 
-	counter = 0;
 	while (!ft_strchr(*storage, '\n'))
 	{
 		bytes_read = read(*fd, *buffer, BUFFER_SIZE);
-		printf("[s:%2d] (%s)\n\n", counter++, *storage);
-		printf("[b:%2d] (%s)\n\n", counter, *buffer);
 		if (bytes_read < 0)
-		{
-			free(*storage);
-			*storage = NULL;
-			return (NULL);
-		}
+			return (free(*storage), NULL);
 		if (bytes_read == 0)
 			break ;
 		(*buffer)[bytes_read] = '\0';
 		temp = ft_strjoin(*storage, *buffer);
 		if (!temp)
-		{
-			free(*storage);
-			*storage = NULL;
-			return (NULL);
-		}
+			return (free(*storage), NULL);
 		free(*storage);
 		*storage = temp;
 	}
@@ -119,15 +107,11 @@ char	*get_next_line(int fd)
 	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buffer)
 		return (NULL);
-	storage = line(&fd, &buffer, &storage);
-	printf("\n--s(%s)--\n", storage);
-	printf("\n--b(%s)--\n", buffer);
+	storage = parse_storage(&fd, &storage, &buffer);
 	free(buffer);
-	if (!storage || !*storage)
-	{
-		free(storage);
-		storage = NULL;
+	if (!storage)
 		return (NULL);
-	}
+	if (!*storage)
+		return (free(storage), NULL);
 	return (extract_line(&storage));
 }
