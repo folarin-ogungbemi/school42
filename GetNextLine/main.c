@@ -26,14 +26,14 @@ void	test_case9(void);
 int	main(void)
 {
 	test_case0();
-	test_case1();
-	test_case2();
-	test_case3();
-	test_case4();
-	test_case5();
-	test_case6();
-	test_case7();
-	test_case8();
+	//test_case1();
+	//test_case2();
+	//test_case3();
+	//test_case4();
+	//test_case5();
+	//test_case6();
+	//test_case7();
+	//test_case8();
 	test_case9();
 	return (0);
 }

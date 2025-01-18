@@ -13,10 +13,25 @@
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 42
+# endif
+
 # include <fcntl.h>
 # include <unistd.h>
 # include <stdio.h>
 # include <stdlib.h>
+
+typedef	struct	s_gnl_state
+{
+	char	*buf;
+	char	*data;
+	ssize_t	bread;
+	char	*temp;
+	char	*nline;
+	char	*line;
+	char	*rest;
+}	t_gnl_state;
 
 char	*get_next_line(int fd);
 char	*ft_strdup(const char *s);

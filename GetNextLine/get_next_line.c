@@ -47,71 +47,62 @@ static char	*ft_strndup(const char *s, size_t n)
 	return (m);
 }
 
-static char	*extract_line(char **storage)
+static char	*extract_line(t_gnl_state *s)
 {
-	char	*newline;
-	char	*line;
-	char	*rest;
-
-	newline = ft_strchr(*storage, '\n');
-	if (!newline)
+	s->nline = ft_strchr(s->data, '\n');
+	if (!s->nline)
 	{
-		line = ft_strdup(*storage);
-		free(*storage);
-		*storage = NULL;
-		return (line);
+		s->line = ft_strdup(s->data);
+		free(s->data);
+		s->data = NULL;
+		return (s->line);
 	}
-	line = ft_strndup(*storage, (newline - *storage + 1));
-	rest = ft_strdup(newline + 1);
-	free(*storage);
-	*storage = rest;
-	if (!*storage)
-		*storage = NULL;
-	if (!**storage)
+	s->line = ft_strndup(s->data, (s->nline - s->data + 1));
+	s->rest = ft_strdup(s->nline + 1);
+	free(s->data);
+	s->data = s->rest;
+	if (!s->data)
+		s->data = NULL;
+	if (!*s->data)
 	{
-		free(*storage);
-		*storage = NULL;
+		free(s->data);
+		s->data = NULL;
 	}
-	return (line);
+	return (s->line);
 }
 
-static char	*parse_storage(int *fd, char **storage, char **buffer)
+static char	*parse_data(int *fd, t_gnl_state *s)
 {
-	ssize_t	bytes_read;
-	char	*temp;
-
-	while (!ft_strchr(*storage, '\n'))
+	while (!ft_strchr(s->data, '\n'))
 	{
-		bytes_read = read(*fd, *buffer, BUFFER_SIZE);
-		if (bytes_read < 0)
-			return (free(*storage), NULL);
-		if (bytes_read == 0)
+		s->bread = read(*fd, s->buf, BUFFER_SIZE);
+		if (s->bread < 0)
+			return (free(s->data), NULL);
+		if (s->bread == 0)
 			break ;
-		(*buffer)[bytes_read] = '\0';
-		temp = ft_strjoin(*storage, *buffer);
-		if (!temp)
-			return (free(*storage), NULL);
-		free(*storage);
-		*storage = temp;
+		(s->buf)[s->bread] = '\0';
+		s->temp = ft_strjoin(s->data, s->buf);
+		if (!s->temp)
+			return (free(s->data), NULL);
+		free(s->data);
+		s->data = s->temp;
+		s->temp = NULL;
 	}
-	return (*storage);
+	return (s->data);
 }
 
 char	*get_next_line(int fd)
 {
-	char		*buffer;
-	static char	*storage;
+	static t_gnl_state	s;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	s.buf = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (fd < 0 || BUFFER_SIZE <= 0 || !s.buf)
+		return (free(s.buf), NULL);
+	s.data = parse_data(&fd, &s);
+	free(s.buf);
+	if (!s.data)
 		return (NULL);
-	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!buffer)
-		return (NULL);
-	storage = parse_storage(&fd, &storage, &buffer);
-	free(buffer);
-	if (!storage)
-		return (NULL);
-	if (!*storage)
-		return (free(storage), NULL);
-	return (extract_line(&storage));
+	if (!*s.data)
+		return (free(s.data), NULL);
+	return (extract_line(&s));
 }
