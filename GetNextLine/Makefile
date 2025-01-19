@@ -10,9 +10,9 @@
 #                                                                              #
 # **************************************************************************** #
 
-CC = cc
-VALUE = 1 
-CFLAGS = -Wall -Werror -Wextra -D BUFFER_SIZE=$(VALUE)
+CC = gcc
+VALUE = 5 
+CFLAGS = -g -Wall -Werror -Wextra -D BUFFER_SIZE=$(VALUE)
 SCR_FILES = get_next_line.c get_next_line_utils.c main.c
 OBJ_FILES = $(SCR_FILES:%.c=%.o)
 TARGET = program
