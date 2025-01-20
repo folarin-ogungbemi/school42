@@ -6,7 +6,7 @@
 /*   By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 16:31:00 by foogungb          #+#    #+#             */
-/*   Updated: 2025/01/17 20:51:37 by foogungb         ###   ########.fr       */
+/*   Updated: 2025/01/20 19:25:10 by foogungb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,9 @@ void	test_case11(void);
 
 int	main(void)
 {
-	test_case00();
+	//test_case00();
 	//test_case0();
-	//test_case1();
+	test_case1();
 	//test_case2();
 	//test_case3();
 	//test_case4();
@@ -120,7 +120,7 @@ void	test_case1(void)
 	char	*str;
 	size_t	counter;
 
-	filename = "./test_files/file.txt";
+	filename = "./test_files/giant_line.txt";
 	printf("\n---------------------------------\n");
 	puts("### TESTCASE 1 ###");
 	puts("Read from a normal/valid file.");

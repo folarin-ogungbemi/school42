@@ -6,7 +6,7 @@
 /*   By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 14:44:45 by foogungb          #+#    #+#             */
-/*   Updated: 2025/01/17 20:08:54 by foogungb         ###   ########.fr       */
+/*   Updated: 2025/01/20 16:22:21 by foogungb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,14 @@ static char	*ft_strchr(const char *s, int c)
 	return (NULL);
 }
 
+#include <string.h>
+#include <stdio.h>
 static char	*extract_line(t_gnl_state *s)
 {
 	char	*newline;
 	char	*line;
 	char	*rest;
-
+	
 	newline = ft_strchr(s->data, '\n');
 	if (!newline)
 	{
@@ -42,9 +44,13 @@ static char	*extract_line(t_gnl_state *s)
 		return (line);
 	}
 	line = ft_strndup(s->data, (newline - s->data + 1));
+//	printf("line [%s]\n", line);
+//	printf("line len [%ld]\n", strlen(line));
 	rest = ft_strdup(newline + 1);
 	free(s->data);
 	s->data = rest;
+//	printf("data [%s]\n", s->data);
+//	printf("data len [%ld]\n", strlen(s->data));
 	if (!s->data)
 		s->data = NULL;
 	if (!*s->data)
@@ -62,6 +68,7 @@ static void	parse_data(int *fd, t_gnl_state *s)
 	while (!ft_strchr(s->data, '\n'))
 	{
 		s->bread = read(*fd, s->buf, BUFFER_SIZE);
+//		printf("bread [%ld]\n", s->bread);
 		if (s->bread < 0)
 		{
 			free(s->data);
@@ -71,6 +78,8 @@ static void	parse_data(int *fd, t_gnl_state *s)
 		if (s->bread == 0)
 			break ;
 		s->buf[s->bread] = '\0';
+//		printf("buf [%s]\n", s->buf);
+//		printf("buf [%ld]\n", strlen(s->buf));
 		temp = ft_strjoin(s->data, s->buf);
 		if (!temp)
 		{
@@ -80,6 +89,7 @@ static void	parse_data(int *fd, t_gnl_state *s)
 		}
 		free(s->data);
 		s->data = temp;
+//		printf("data [%s]\n", s->data);
 	}
 }
 

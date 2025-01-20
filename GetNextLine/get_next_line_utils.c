@@ -6,11 +6,12 @@
 /*   By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 14:46:05 by foogungb          #+#    #+#             */
-/*   Updated: 2025/01/16 14:46:29 by foogungb         ###   ########.fr       */
+/*   Updated: 2025/01/20 16:22:47 by foogungb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <stdio.h>
 
 static size_t	ft_strlen(const char *str)
 {
