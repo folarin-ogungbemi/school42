@@ -14,19 +14,25 @@ CC = gcc
 VALUE = 5 
 CFLAGS = -g -Wall -Werror -Wextra -D BUFFER_SIZE=$(VALUE)
 SCR_FILES = get_next_line.c get_next_line_utils.c main.c
-OBJ_FILES = $(SCR_FILES:%.c=%.o)
+BONUS_SRC_FILES = get_next_line_bonus.c get_next_line_utils_bonus.c main.c
+OBJ_FILES = $(SRC_FILES:%.c=%.o)
+BONUS_OBJ_FILES = $(BONUS_SRC_FILES:%.c=%.o)
 TARGET = program
 
 # Default target name
 all: $(TARGET)
 
-# Build Project to executable
+# Build main Program
 $(TARGET): $(OBJ_FILES)
 	@$(CC) $(CFLAGS) $(OBJ_FILES) -o $@
 	@echo "Compiled $@ Successfully."
 
+bonus: $(BONUS_OBJ_FILES)
+	@$(CC) $(CFLAGS) $(BONUS_OBJ_FILES) -o $(TARGET)
+	@echo "Compiled bonus $(TARGET) Successfully."
+
 # Compile each source file into an object file
-%.c: %.o
+%.o: %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiled $< to $@"
 

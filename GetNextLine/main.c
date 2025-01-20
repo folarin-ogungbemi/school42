@@ -12,6 +12,7 @@
 
 #include "get_next_line.h"
 #include "string.h"
+#include "stdio.h"
 
 void	test_case00(void);
 void	test_case0(void);

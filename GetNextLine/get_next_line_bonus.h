@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef GET_NEXT_LINE_BONUS_H
+# define GET_NEXT_LINE_BONUS_H
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 42
@@ -21,12 +21,18 @@
 # include <unistd.h>
 # include <stdlib.h>
 
-typedef struct s_gnl_state
+typedef struct s_gnl_buffer
 {
-	char	*buf;
-	char	*data;
 	ssize_t	bread;
-}	t_gnl_state;
+	char	*buf;
+}	t_gnl_buffer;
+
+typedef struct s_fd_node
+{
+	int					fd;
+	char				*data;
+	struct s_fd_node	*next;
+}	t_fd_node;
 
 char	*get_next_line(int fd);
 char	*ft_strdup(const char *s);
