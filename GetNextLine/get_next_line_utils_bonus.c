@@ -11,9 +11,8 @@
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
-#include <stdio.h>
 
-static size_t	ft_strlen(const char *str)
+size_t	ft_strlen(const char *str)
 {
 	const char	*end;
 
@@ -84,8 +83,8 @@ char	*ft_strjoin(char const *s1, char const *s2)
 {
 	char	*m;
 	size_t	total_len;
-	int	i;
-	int	j;
+	int		i;
+	int		j;
 
 	i = 0;
 	j = 0;
@@ -99,10 +98,10 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	m = malloc((total_len) * sizeof(char));
 	if (!m)
 		return (NULL);
-	while(s1[j])
+	while (s1[j])
 		m[i++] = s1[j++];
 	j = 0;
-	while(s2[j])
+	while (s2[j])
 		m[i++] = s2[j++];
 	m[i] = '\0';
 	return (m);

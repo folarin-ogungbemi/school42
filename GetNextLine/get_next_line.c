@@ -12,29 +12,42 @@
 
 #include "get_next_line.h"
 
-static char	*ft_strchr(const char *s, int c)
+static void	*ft_memmove(void *dest, const void *src, size_t n)
 {
-	if (!s)
-		return (NULL);
-	while (*s)
+	unsigned char		*d;
+	const unsigned char	*s;
+	size_t				i;
+
+	i = 0;
+	d = dest;
+	s = src;
+	if (s > d)
 	{
-		if (*s == (char)c)
-			return ((char *)s);
-		s++;
+		while (i < n)
+		{
+			d[i] = s[i];
+			i++;
+		}
 	}
-	if (*s == (char)c)
-		return ((char *)s);
-	return (NULL);
+	else if (s < d)
+	{
+		i = n;
+		while (i > 0)
+		{
+			d[i - 1] = s[i - 1];
+			i--;
+		}
+	}
+	return (dest);
 }
 
-#include <string.h>
-#include <stdio.h>
 static char	*extract_line(t_gnl_state *s)
 {
 	char	*newline;
 	char	*line;
-	char	*rest;
-	
+
+	if (!s->data)
+		return (NULL);
 	newline = ft_strchr(s->data, '\n');
 	if (!newline)
 	{
@@ -44,15 +57,7 @@ static char	*extract_line(t_gnl_state *s)
 		return (line);
 	}
 	line = ft_strndup(s->data, (newline - s->data + 1));
-//	printf("line [%s]\n", line);
-//	printf("line len [%ld]\n", strlen(line));
-	rest = ft_strdup(newline + 1);
-	free(s->data);
-	s->data = rest;
-//	printf("data [%s]\n", s->data);
-//	printf("data len [%ld]\n", strlen(s->data));
-	if (!s->data)
-		s->data = NULL;
+	ft_memmove(s->data, newline + 1, ft_strlen(newline + 1) + 1);
 	if (!*s->data)
 	{
 		free(s->data);
@@ -68,7 +73,6 @@ static void	parse_data(int *fd, t_gnl_state *s)
 	while (!ft_strchr(s->data, '\n'))
 	{
 		s->bread = read(*fd, s->buf, BUFFER_SIZE);
-//		printf("bread [%ld]\n", s->bread);
 		if (s->bread < 0)
 		{
 			free(s->data);
@@ -78,8 +82,6 @@ static void	parse_data(int *fd, t_gnl_state *s)
 		if (s->bread == 0)
 			break ;
 		s->buf[s->bread] = '\0';
-//		printf("buf [%s]\n", s->buf);
-//		printf("buf [%ld]\n", strlen(s->buf));
 		temp = ft_strjoin(s->data, s->buf);
 		if (!temp)
 		{
@@ -89,7 +91,6 @@ static void	parse_data(int *fd, t_gnl_state *s)
 		}
 		free(s->data);
 		s->data = temp;
-//		printf("data [%s]\n", s->data);
 	}
 }
 
@@ -104,7 +105,7 @@ char	*get_next_line(int fd)
 	free(s.buf);
 	if (!s.data)
 		return (NULL);
-	if (!*s.data)
+	if (!s.data || !*s.data)
 		return (free(s.data), NULL);
 	return (extract_line(&s));
 }

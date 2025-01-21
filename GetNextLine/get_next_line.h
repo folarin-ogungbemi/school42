@@ -29,6 +29,8 @@ typedef struct s_gnl_state
 }	t_gnl_state;
 
 char	*get_next_line(int fd);
+size_t	ft_strlen(const char *str);
+char	*ft_strchr(const char *s, int c);
 char	*ft_strdup(const char *s);
 char	*ft_strndup(const char *s, size_t n);
 char	*ft_strjoin(char const *s1, char const *s2);

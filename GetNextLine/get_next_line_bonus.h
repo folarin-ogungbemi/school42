@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_bonus.h                              :+:      :+:    :+:   */
+/*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 14:46:44 by foogungb          #+#    #+#             */
-/*   Updated: 2025/01/20 15:31:07 by foogungb         ###   ########.fr       */
+/*   Updated: 2025/01/20 17:36:12 by foogungb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,24 +17,23 @@
 #  define BUFFER_SIZE 42
 # endif
 
+# ifndef OPEN_MAX
+#  define OPEN_MAX 1024
+# endif
+
 # include <fcntl.h>
 # include <unistd.h>
 # include <stdlib.h>
 
-typedef struct s_gnl_buffer
+typedef struct s_gnl_state
 {
-	ssize_t	bread;
 	char	*buf;
-}	t_gnl_buffer;
-
-typedef struct s_fd_node
-{
-	int					fd;
-	char				*data;
-	struct s_fd_node	*next;
-}	t_fd_node;
+	char	*data[OPEN_MAX];
+	ssize_t	bread;
+}	t_gnl_state;
 
 char	*get_next_line(int fd);
+size_t	ft_strlen(const char *str);
 char	*ft_strchr(const char *s, int c);
 char	*ft_strdup(const char *s);
 char	*ft_strndup(const char *s, size_t n);

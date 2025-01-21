@@ -1,141 +1,109 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/16 14:44:45 by foogungb          #+#    #+#             */
-/*   Updated: 2025/01/20 18:54:30 by foogungb         ###   ########.fr       */
+/*   Updated: 2025/01/20 16:22:21 by foogungb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
-#include <stdio.h>
-#include <string.h>
 
-static char	*extract_line(t_fd_node **node)
+static void	*ft_memmove(void *dest, const void *src, size_t n)
+{
+	unsigned char		*d;
+	const unsigned char	*s;
+	size_t				i;
+
+	i = 0;
+	d = dest;
+	s = src;
+	if (s > d)
+	{
+		while (i < n)
+		{
+			d[i] = s[i];
+			i++;
+		}
+	}
+	else if (s < d)
+	{
+		i = n;
+		while (i > 0)
+		{
+			d[i - 1] = s[i - 1];
+			i--;
+		}
+	}
+	return (dest);
+}
+
+static char	*extract_line(t_gnl_state *s, int fd)
 {
 	char	*newline;
 	char	*line;
-	char	*rest;
 
-	newline = ft_strchr((*node)->data, '\n');
+	newline = ft_strchr(s->data[fd], '\n');
 	if (!newline)
 	{
-		line = ft_strdup((*node)->data);
-		free((*node)->data);
-		(*node)->data = NULL;
+		line = ft_strdup(s->data[fd]);
+		free(s->data[fd]);
+		s->data[fd] = NULL;
 		return (line);
 	}
-	line = ft_strndup((*node)->data, (newline - (*node)->data + 1));
-	rest = ft_strdup(newline + 1);
-	free((*node)->data);
-	(*node)->data = rest;
-	if (!(*node)->data)
-		(*node)->data = NULL;
-	if (!*(*node)->data)
+	line = ft_strndup(s->data[fd], (newline - s->data[fd] + 1));
+	ft_memmove(s->data[fd], newline + 1, ft_strlen(newline + 1) + 1);
+	if (!*s->data[fd])
 	{
-		free((*node)->data);
-		(*node)->data = NULL;
+		free(s->data[fd]);
+		s->data[fd] = NULL;
 	}
 	return (line);
 }
 
-static void	parse_data(t_fd_node **node, t_gnl_buffer *b)
+static void	parse_data(int fd, t_gnl_state *s)
 {
 	char	*temp;
 
-	while (!ft_strchr((*node)->data, '\n'))
+	while (!ft_strchr(s->data[fd], '\n'))
 	{
-		b->bread = read((*node)->fd, b->buf, BUFFER_SIZE);
-		if (b->bread < 0)
+		s->bread = read(fd, s->buf, BUFFER_SIZE);
+		if (s->bread < 0)
 		{
-			free((*node)->data);
-			(*node)->data = NULL;
+			free(s->data[fd]);
+			s->data[fd] = NULL;
 			break ;
 		}
-		if (b->bread == 0)
+		if (s->bread == 0)
 			break ;
-		(b->buf)[b->bread] = '\0';
-		temp = ft_strjoin((*node)->data, b->buf);
+		s->buf[s->bread] = '\0';
+		temp = ft_strjoin(s->data[fd], s->buf);
 		if (!temp)
 		{
-			free((*node)->data);
-			(*node)->data = NULL;
+			free(s->data[fd]);
+			s->data[fd] = NULL;
 			break ;
 		}
-		free((*node)->data);
-		(*node)->data = temp;
-	}
-}
-
-static t_fd_node	*get_fd_node(t_fd_node **head, int *fd)
-{
-	t_fd_node	*curr;
-	t_fd_node	*new_node;
-
-	curr = *head;
-	while (curr)
-	{
-		if (curr->fd == *fd)
-			return (curr);
-		curr = curr->next;
-	}
-	new_node = (t_fd_node *)malloc(sizeof(t_fd_node));
-	if (!new_node)
-		return (NULL);
-	new_node->fd = *fd;
-	new_node->data = NULL;
-	new_node->next = *head;
-	*head = new_node;
-	return (new_node);
-}
-
-static void	fd_lst_remove(t_fd_node **head, int fd)
-{
-	t_fd_node	*curr;
-	t_fd_node	*prev;
-
-	curr = *head;
-	prev = NULL;
-	while (curr)
-	{
-		if (curr->fd == fd)
-		{
-			if (prev == NULL)
-				*head = curr->next;
-			else
-				prev->next = curr->next;
-			free(curr->data);
-			free(curr);
-			return ;
-		}
-		prev = curr;
-		curr = curr->next;
+		free(s->data[fd]);
+		s->data[fd] = temp;
 	}
 }
 
 char	*get_next_line(int fd)
 {
-	static t_fd_node	*fd_list;
-	t_fd_node			*curr;
-	t_gnl_buffer		b;
+	static t_gnl_state	s;
 
-	b.buf = calloc((BUFFER_SIZE + 1), sizeof(char));
-	if (fd < 0 || BUFFER_SIZE <= 0 || !b.buf || (read(fd, 0, 0) < 0))
-		return (free(b.buf), NULL);
-	curr = get_fd_node(&fd_list, &fd);
-	if (!curr)
-		return (free(b.buf), NULL);
-	parse_data(&curr, &b);
-	free(b.buf);
-	if (!curr->data)
-	{
-		fd_lst_remove(&fd_list, fd);
+	s.buf = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (fd < 0 || fd >= OPEN_MAX || BUFFER_SIZE <= 0 || !s.buf)
+		return (free(s.buf), NULL);
+	parse_data(fd, &s);
+	free(s.buf);
+	if (!s.data[fd])
 		return (NULL);
-	}
-	if (!*curr->data)
-		return(free(curr->data), NULL);
-	return (extract_line(&curr));
+	if (!*s.data[fd])
+		return (free(s.data[fd]), NULL);
+	return (extract_line(&s, fd));
 }
