@@ -58,6 +58,7 @@ static char	*extract_line(t_gnl_state *s)
 	}
 	line = ft_strndup(s->data, (newline - s->data + 1));
 	ft_memmove(s->data, newline + 1, ft_strlen(newline + 1) + 1);
+	s->data[ft_strlen(newline + 1) + 1] = '\0';
 	if (!*s->data)
 	{
 		free(s->data);
@@ -75,8 +76,11 @@ static void	parse_data(int *fd, t_gnl_state *s)
 		s->bread = read(*fd, s->buf, BUFFER_SIZE);
 		if (s->bread < 0)
 		{
-			free(s->data);
-			s->data = NULL;
+			if (s->data)
+			{
+				free(s->data);
+				s->data = NULL;
+			}
 			break ;
 		}
 		if (s->bread == 0)
