@@ -1,19 +1,23 @@
-#include <stdio.h>
-//#include <stddev.h>
+#include <unistd.h>
 
-int	main(int argc, char *argv[])
+int	main(int ac, char *av[])
 {
 	int	i;
+	int	j;
 
-	i = 0;
-	if (argc >= 1)
+	if (ac > 1)
 	{
-		while (argv[i])
+		i = 1;
+		while (i < ac)
 		{
-			printf("result [%s]:\n", argv[i]);
+			j = 0;
+			while (av[i][j])
+				write(1, &av[i][j++], 1);
+			write(1, "\n", 1);
 			i++;
 		}
-		printf("argc [%d]:\n", argc);
 	}
+	else
+		write(1, "\n", 1);
 	return (0);
 }
