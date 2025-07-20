@@ -10,11 +10,12 @@ void	putnbr_postv(int nbr)
 	write(1, &nb, 1);
 }
 
-void	signal_handler(int signum)
+void	signal_handler(int signum, siginfo_t *info, void *context)
 {
 	static unsigned char	current_char = 0;
-	static int		bit_count = 0;
+	static int				bit_count = 0;
 
+	(void)context;
 	if (signum == SIGUSR2)
 		current_char |= (1 << (7 - bit_count));
 	bit_count++;
@@ -25,17 +26,18 @@ void	signal_handler(int signum)
 			write(1, "\n", 1);
 		bit_count = 0;
 		current_char = 0;
+		kill(info->si_pid, SIGUSR2);
 	}
 }
 
 int	main(void)
 {
 	struct sigaction	sa;
-	pid_t	pid;
+	pid_t				pid;
 
 	pid = getpid();
-	sa.sa_handler = signal_handler;
-	sa.sa_flags = 0;
+	sa.sa_sigaction = signal_handler;
+	sa.sa_flags = SA_SIGINFO;
 	sigemptyset(&sa.sa_mask);
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
