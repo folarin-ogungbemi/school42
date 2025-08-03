@@ -1,6 +1,6 @@
 #include "push_swap.h"
 
-int	str_is_digit(char *str)
+static int	str_is_digit(const char *str)
 {
 	if (!*str)
 		return (0);
@@ -15,27 +15,37 @@ int	str_is_digit(char *str)
 	return (1);
 }
 
+static int	validate(const char *str)
+{
+	long	val;
+
+	if (!str_is_digit(str))
+		exit_error();
+	val = ft_atol(str);
+	return ((int)val);
+}
+
 int	main(int ac, char *av[])
 {
 	int		i;
+	int		val;
 	t_node	*stack_a;
 	t_node	*stack_b;
 
+	stack_a = NULL;
+	stack_b = NULL;
 	if (ac > 1)
 	{
 		i = 1;
-		stack_a = NULL;
-		stack_b = NULL;
 		while (i < ac)
 		{
-			if (!str_is_digit(av[i]))
-				return (write(1, "Error\n", 6), 1);
-			append_node(&stack_a, create_node(ft_atoi(av[i])));
+			val = validate(av[i]);
+			append_node(&stack_a, create_node(val));
 			i++;
 		}
-		print_stack(stack_a, "Stack A");
+		if (has_duplicate(stack_a))
+			exit_error();
 		sort_by_stack(&stack_a, &stack_b);
-		print_stack(stack_a, "Stack A");
 		free_stack(stack_a);
 	}
 	else

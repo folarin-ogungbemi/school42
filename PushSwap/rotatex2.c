@@ -1,6 +1,6 @@
 #include "push_swap.h"
 
-void	rotatex2(t_node **stack)
+static void	rotatex2(t_node **stack)
 {
 	t_node	*x;
 	t_node	*last;
@@ -28,7 +28,7 @@ void	rotatex2_a(t_node **stack_a)
 void	rotatex2_b(t_node **stack_b)
 {
 	rotatex2(stack_b);
-	write(1, "rbb\n", 4);
+	write(1, "rrb\n", 4);
 }
 
 void	rotatex2_rr(t_node **stack_a, t_node **stack_b)

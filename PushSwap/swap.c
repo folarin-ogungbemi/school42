@@ -1,6 +1,6 @@
 #include "push_swap.h"
 
-void	swap(t_node **stack_a)
+static void	swap(t_node **stack_a)
 {
 	t_node	*temp_1;
 	t_node	*temp_2;
