@@ -36,4 +36,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all re clean fclean run_client run_server
+.PHONY: all re clean fclean

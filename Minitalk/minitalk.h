@@ -1,15 +1,14 @@
 #ifndef MINITALK_H
 # define MINITALK_H
 
-# define ACK_RECEIVED	0x01
-# define TIMEOUT	0x02
+# define BUFFER_SIZE	1024
 
 # include <unistd.h>
 # include <stdlib.h>
 # include <stdio.h>
 # include <signal.h>
 
-void	signal_handler(int signum, siginfo_t *info, void *context);
+void	signal_handler(int signum);
 void	send_char(int client_pid, char c);
 
 #endif

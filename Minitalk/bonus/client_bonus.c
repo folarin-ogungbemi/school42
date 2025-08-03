@@ -1,5 +1,7 @@
 #include "minitalk.h"
 
+volatile sig_atomic_t	g_status = 0;
+
 int	ft_atoi_strict(const char *nptr)
 {
 	int	nbr;
@@ -15,10 +17,23 @@ int	ft_atoi_strict(const char *nptr)
 	return (nbr);
 }
 
+void	ack_handler(int signum)
+{
+	(void)signum;
+	g_status |= ACK_RECEIVED;
+}
+
+void	timeout_handler(int signum)
+{
+	(void)signum;
+	g_status |= TIMEOUT;
+}
+
 void	send_char(pid_t pid, char c)
 {
 	int	i;
 
+	g_status &= ~(ACK_RECEIVED | TIMEOUT);
 	i = 7;
 	while (i >= 0)
 	{
@@ -27,8 +42,18 @@ void	send_char(pid_t pid, char c)
 		else
 			kill(pid, SIGUSR1);
 		i--;
-		usleep(500);
+		usleep(800);
 	}
+	alarm(2);
+	while (!(g_status & (ACK_RECEIVED | TIMEOUT)))
+		pause();
+	alarm(0);
+	if (g_status & TIMEOUT)
+	{
+		write(2, "Error: Timeout no ACK received.\n", 32);
+		_exit(1);
+	}
+	g_status &= ~ACK_RECEIVED;
 }
 
 int	main(int ac, char **av)
@@ -46,6 +71,8 @@ int	main(int ac, char **av)
 		write(2, "Error: Invalid Server PID.\n", 27);
 		return (1);
 	}
+	signal(SIGUSR1, ack_handler);
+	signal(SIGALRM, timeout_handler);
 	while (*av[2])
 		send_char(pid, *av[2]++);
 	send_char(pid, '\0');

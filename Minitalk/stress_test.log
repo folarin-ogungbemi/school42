@@ -1,0 +1,7 @@
+Minitalk Stress Test Log
+Test: 10 chars | Time: 0.04 USER s | Status: OK
+Test: 100 chars | Time: 0.34 USER s | Status: OK
+Test: 250 chars | Time: 0.85 USER s | Status: OK
+Test: 500 chars | Time: 1.69 USER s | Status: OK
+Test: 1000 chars | Time: 3.35 USER s | Status: OK
+Test: 2000 chars | Time: 6.73 USER s | Status: OK
