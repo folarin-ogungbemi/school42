@@ -3,7 +3,7 @@ CFLAGS = -Wall -Werror -Wextra
 
 NAME = so_long
 GNL_DIR = GetNextLine
-SRC_FILES = main.c map.c render.c utils.c keypress.c \
+SRC_FILES = main.c map.c render.c utils.c keypress.c checker.c\
 	    $(GNL_DIR)/get_next_line.c \
 	    $(GNL_DIR)/get_next_line_utils.c
 OBJ_FILES = $(SRC_FILES:%.c=%.o)

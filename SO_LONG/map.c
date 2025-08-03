@@ -64,6 +64,7 @@ t_map	*read_map(const char *filename)
 	map->p_count = 0;
 	map->e_count = 0;
 	map->c_count = 0;
+	check_map(map);
 	return (map);
 }
 
@@ -105,7 +106,7 @@ void	validate_map(t_map *map, t_game *game)
 	{
 		if (!map->grid[y])
 			error_exit("Invalid map row");
-		if ((int)strlen(map->grid[y]) != map->w)
+		if ((int)ft_strlen(map->grid[y]) != map->w)
 			error_exit("Map is not rectangular");
 		x_axis(map, &y, game);
 		y++;

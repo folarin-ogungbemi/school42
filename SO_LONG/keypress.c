@@ -1,4 +1,38 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_putnbr_fd.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/12/02 08:56:25 by foogungb          #+#    #+#             */
+/*   Updated: 2024/12/02 14:49:33 by foogungb         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 #include "so_long.h"
+
+void	ft_putnbr(int n)
+{
+	char	digit;
+
+	if (n == -2147483648)
+	{
+		(void)!write(1, "-2147483648", 11);
+		return ;
+	}
+	if (n < 0)
+	{
+		(void)!write(1, "-", 1);
+		n = -n;
+	}
+	if (n >= 0)
+	{
+		if (n > 9)
+			ft_putnbr(n / 10);
+		digit = (n % 10) + 48;
+		(void)!write(1, &digit, 1);
+	}
+}
 
 int	handle_exit(t_game *game)
 {
@@ -21,14 +55,23 @@ int	can_move_to(t_game *game, int x, int y)
 
 void	move_player(t_game *game, int x, int y)
 {
-	game->player_x = x;
-	game->player_y = y;
-	if (game->map->grid[y][x] == 'C')
+	char	*tile;
+
+	tile = &game->map->grid[y][x];
+	if (game->player_x != x || game->player_y != y)
 	{
-		game->map->grid[y][x] = '0';
+		game->player_x = x;
+		game->player_y = y;
+		game->move_count++;
+		ft_putnbr(game->move_count);
+		(void)!write(1, "\n", 1);
+	}
+	if (*tile == 'C')
+	{
+		*tile = '0';
 		game->map->c_count--;
 	}
-	if (game->map->grid[y][x] == 'E' && game->map->c_count == 0)
+	if (*tile == 'E' && game->map->c_count == 0)
 		handle_exit(game);
 }
 

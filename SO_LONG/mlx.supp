@@ -1,0 +1,13 @@
+{
+   MLX_writev_bug
+   Memcheck:Param
+   writev(vector[0])
+   fun:writev
+   fun:???
+   fun:???
+   fun:xcb_writev
+   fun:_XSend
+   fun:_XReadEvents
+   fun:XWindowEvent
+   fun:mlx_int_wait_first_expose
+}

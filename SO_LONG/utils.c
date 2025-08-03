@@ -1,4 +1,18 @@
 #include "so_long.h"
+#include "GetNextLine/get_next_line.h"
+
+void	check_map(t_map *map)
+{
+	int	px;
+	int	py;
+
+	if (!find_player_position(map, &px, &py))
+	{
+		free_map(map);
+		error_exit("No player found on map.");
+	}
+	validate_map_solvability(map, px, py);
+}
 
 size_t	ft_strcspn(const char *s, const char *reject)
 {
@@ -51,16 +65,12 @@ int	get_map_height(const char *filename)
 
 void	error_exit(const char *msg)
 {
-	ssize_t	ignored;
-
 	if (errno != 0)
 		perror(msg);
 	else
 	{
-		ignored = write(2, msg, strlen(msg));
-		(void)ignored;
-		ignored = write(2, "\n", 1);
-		(void)ignored;
+		(void)!write(2, msg, ft_strlen(msg));
+		(void)!write(2, "\n", 1);
 	}
 	exit(EXIT_FAILURE);
 }

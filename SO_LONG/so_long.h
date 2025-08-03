@@ -16,7 +16,6 @@
 # include <errno.h>
 # include <stdlib.h>
 # include <fcntl.h>
-# include <string.h>
 # include "mlx.h"
 
 typedef struct s_map
@@ -44,6 +43,7 @@ typedef struct s_game
 	void	*win;
 	t_map	*map;
 	t_img	img;
+	int		move_count;
 	int		player_x;
 	int		player_y;
 }	t_game;
@@ -62,4 +62,10 @@ int		get_map_height(const char *filename);
 void	error_exit(const char *map);
 void	free_map(t_map *map);
 size_t	ft_strcspn(const char *s, const char *reject);
+int		find_player_position(t_map *map, int *player_x, int *player_y);
+char	**duplicate_map(char **grid, int height);
+void	flood_fill(char **grid, int x, int y);
+int		has_unreachable_items(char **grid, int width, int height);
+void	validate_map_solvability(t_map *map, int player_x, int player_y);
+void	check_map(t_map *map);
 #endif
