@@ -1,6 +1,6 @@
 #include "minitalk.h"
 
-int	ft_atoi_strict(const char *nptr)
+static int	ft_atoi_strict(const char *nptr)
 {
 	int	nbr;
 
@@ -15,7 +15,7 @@ int	ft_atoi_strict(const char *nptr)
 	return (nbr);
 }
 
-void	send_char(pid_t pid, char c)
+static void	send_char(pid_t pid, char c)
 {
 	int	i;
 
