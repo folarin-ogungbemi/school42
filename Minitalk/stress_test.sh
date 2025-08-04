@@ -1,49 +1,76 @@
 #!/bin/bash
 
-# Usage: ./stress_test.sh <server_pid>
-# Example: ./stress_test.sh 3647958
+SERVER_PID=$1
+LOG_FILE="minitalk_stress_test.log"
+CLIENT="./client"
 
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <server_pid>"
+if [ -z "$SERVER_PID" ]; then
+    echo "Usage: $0 <SERVER_PID>"
     exit 1
 fi
 
-SERVER_PID=$1
-CLIENT=./client
-LOG=stress_test.log
-
-# Clear previous log
-echo "Minitalk Stress Test Log" > "$LOG"
+echo "Minitalk Stress Test Log" > "$LOG_FILE"
+echo "Target Server PID: $SERVER_PID" >> "$LOG_FILE"
+echo "Timestamp: $(date)" >> "$LOG_FILE"
+echo "----------------------------------" >> "$LOG_FILE"
 
 run_test() {
-    local len=$1
-    local char=${2:-A}
-    local msg=$(printf "${char}%.0s" $(seq 1 $len))
+    local message="$1"
+    local description="$2"
 
-    echo -ne "Sending $len characters... "
+    echo -n "Testing: $description... "
+    start_time=$(date +%s.%N)
+    $CLIENT "$SERVER_PID" "$message" > /dev/null
+    status=$?
+    end_time=$(date +%s.%N)
+    elapsed=$(echo "$end_time - $start_time" | bc)
 
-    # Measure the time it takes
-    result=$( { /usr/bin/time -f "REAL:%e USER:%U SYS:%S" $CLIENT $SERVER_PID "$msg"; } 2>&1 )
-
-    # Extract output
-    real_time=$(echo "$result" | grep 'REAL' | awk -F ':' '{print $2}' | xargs)
-    error_msg=$(echo "$result" | grep "Error")
-
-    if [ -z "$error_msg" ]; then
-        echo "✅ Passed in ${real_time}s"
-        echo "Test: $len chars | Time: $real_time s | Status: OK" >> "$LOG"
+    if [ "$status" -eq 0 ]; then
+        echo "✅ [${elapsed}s]"
+        echo "Test: $description | Time: ${elapsed}s | Status: OK" >> "$LOG_FILE"
     else
-        echo "❌ Failed"
-        echo "Test: $len chars | Time: $real_time s | Error: $error_msg" >> "$LOG"
+        echo "❌ FAILED"
+        echo "Test: $description | Time: ${elapsed}s | Status: FAILED" >> "$LOG_FILE"
     fi
 }
 
-# Test different message lengths
-for size in 10 100 250 500 1000 2000; do
-    run_test $size
-    sleep 1
+### === TEST CASES === ###
+
+run_test "Hello" "Short message"
+run_test "" "Empty string"
+run_test "$(printf '%.0sA' {1..10})" "10 characters"
+run_test "$(printf '%.0sB' {1..100})" "100 characters"
+run_test "$(printf '%.0sC' {1..250})" "250 characters"
+run_test "$(printf '%.0sD' {1..500})" "500 characters"
+run_test "$(printf '%.0sE' {1..1000})" "1000 characters"
+
+run_test "!@#$%^&*()_+[]{}|;:',.<>/?~" "Special characters"
+run_test "こんにちは世界" "Unicode (non-ASCII, may be broken unless handled)"
+run_test "This is a test with spaces in between words." "String with spaces"
+
+### === MULTIPLE MESSAGES IN A ROW === ###
+for i in {1..5}; do
+    run_test "Batch Message #$i" "Sequential message $i"
 done
 
-echo
-echo "All tests done. See $LOG for details."
+### === BATCH TEST: Rapid Sending === ###
+echo -n "Batch stress test (50 short messages)... "
+batch_status=0
+start_time=$(date +%s.%N)
+for i in {1..50}; do
+    $CLIENT "$SERVER_PID" "msg$i" > /dev/null || batch_status=1
+done
+end_time=$(date +%s.%N)
+elapsed=$(echo "$end_time - $start_time" | bc)
+if [ "$batch_status" -eq 0 ]; then
+    echo "✅ [${elapsed}s]"
+    echo "Batch: 50 short messages | Time: ${elapsed}s | Status: OK" >> "$LOG_FILE"
+else
+    echo "❌ FAILED"
+    echo "Batch: 50 short messages | Time: ${elapsed}s | Status: FAILED" >> "$LOG_FILE"
+fi
+
+### === FINAL === ###
+echo "----------------------------------" >> "$LOG_FILE"
+echo "Done. Full log in $LOG_FILE"
 
