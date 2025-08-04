@@ -15,7 +15,7 @@ static int	ft_atoi_strict(const char *nptr)
 	return (nbr);
 }
 
-static void	send_char(pid_t pid, char c)
+void	send_char(pid_t pid, char c)
 {
 	int	i;
 

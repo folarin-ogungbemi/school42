@@ -16,7 +16,7 @@ static void	print_buf(char *buf, int size)
 	write(1, "\n", 1);
 }
 
-static void	signal_handler(int signum)
+void	signal_handler(int signum)
 {
 	static unsigned char	current_char = 0;
 	static int				bit_count = 0;
