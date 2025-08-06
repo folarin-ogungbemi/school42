@@ -1,30 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putnbr_fd.c                                     :+:      :+:    :+:   */
+/*   keypress.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/02 08:56:25 by foogungb          #+#    #+#             */
-/*   Updated: 2024/12/02 14:49:33 by foogungb         ###   ########.fr       */
+/*   Created: 2025/08/04 16:39:00 by foogungb          #+#    #+#             */
+/*   Updated: 2025/08/04 17:52:46 by foogungb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "so_long.h"
 
-void	ft_putnbr(int n)
+static void	ft_putnbr(int n)
 {
 	char	digit;
 
-	if (n == -2147483648)
-	{
-		(void)!write(1, "-2147483648", 11);
-		return ;
-	}
-	if (n < 0)
-	{
-		(void)!write(1, "-", 1);
-		n = -n;
-	}
 	if (n >= 0)
 	{
 		if (n > 9)
@@ -34,17 +24,12 @@ void	ft_putnbr(int n)
 	}
 }
 
-int	handle_exit(t_game *game)
+static int	can_move_to(t_game *game, int x, int y)
 {
-	mlx_destroy_window(game->mlx, game->win);
-	exit(EXIT_SUCCESS);
-	return (0);
-}
-
-int	can_move_to(t_game *game, int x, int y)
-{
-	if (x < 0
-		|| y < 0
+	if (!game || !game->map || !game->map->grid
+		|| !game->map->grid[y])
+		return (0);
+	if (x < 0 || y < 0 
 		|| x >= game->map->w
 		|| y >= game->map->h)
 		return (0);
@@ -53,7 +38,7 @@ int	can_move_to(t_game *game, int x, int y)
 	return (1);
 }
 
-void	move_player(t_game *game, int x, int y)
+static void	move_player(t_game *game, int x, int y)
 {
 	char	*tile;
 
@@ -72,7 +57,7 @@ void	move_player(t_game *game, int x, int y)
 		game->map->c_count--;
 	}
 	if (*tile == 'E' && game->map->c_count == 0)
-		handle_exit(game);
+		error_exit("You Win!", game);
 }
 
 int	handle_keypress(int keycode, t_game *game)
@@ -91,11 +76,14 @@ int	handle_keypress(int keycode, t_game *game)
 	else if (keycode == KEY_D)
 		x++;
 	else if (keycode == ESC_KEY)
-		handle_exit(game);
+	{
+		cleanup(game);
+		exit(EXIT_SUCCESS);
+	}
 	if (can_move_to(game, x, y))
 	{
 		move_player(game, x, y);
-		render_map(game);
+		render_tile(game);
 	}
 	return (0);
 }

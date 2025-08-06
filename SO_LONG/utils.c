@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: foogungb <foogungb@student.42berlin.d      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/04 16:38:25 by foogungb          #+#    #+#             */
+/*   Updated: 2025/08/04 16:38:26 by foogungb         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "so_long.h"
 #include "GetNextLine/get_next_line.h"
 
@@ -8,8 +20,8 @@ void	check_map(t_map *map)
 
 	if (!find_player_position(map, &px, &py))
 	{
-		free_map(map);
-		error_exit("No player found on map.");
+		free_map_struct(map);
+		error_exit("No player found on map.", NULL);
 	}
 	validate_map_solvability(map, px, py);
 }
@@ -59,31 +71,35 @@ int	get_map_height(const char *filename)
 	if (!last_nline)
 		height++;
 	if (close(fd) == -1)
-		error_exit("Could not close file");
+		error_exit("Could not close file", NULL);
 	return (height);
 }
 
-void	error_exit(const char *msg)
-{
-	if (errno != 0)
-		perror(msg);
-	else
-	{
-		(void)!write(2, msg, ft_strlen(msg));
-		(void)!write(2, "\n", 1);
-	}
-	exit(EXIT_FAILURE);
-}
-
-void	free_map(t_map *map)
+void	free_map(char **map, int lines)
 {
 	int	i;
 
+	i = 0;
+	while (i < lines)
+		free(map[i++]);
+	free(map);
+}
+
+void	free_map_struct(t_map *map)
+{
+	int	i;
+
+	i = 0;
 	if (!map)
 		return ;
-	i = 0;
-	while (map->grid[i])
-		free(map->grid[i++]);
-	free(map->grid);
-	free(map);
+	if (map)
+	{
+		if (map->grid)
+		{
+			while (map->grid[i])
+				free(map->grid[i++]);
+			free(map->grid);
+		}
+		free(map);
+	}
 }

@@ -54,7 +54,10 @@ char	**duplicate_map(char **grid, int height)
 
 void	flood_fill(char **grid, int x, int y)
 {
-	if (y < 0 || x < 0 || !grid[y] || x >= (int)ft_strlen(grid[y]))
+	int	y_len;
+
+	y_len = ft_strlen(grid[y]);
+	if (y < 0 || x < 0 || !grid[y] || x >= y_len)
 		return ;
 	if (grid[y][x] == '1' || grid[y][x] == 'V')
 		return ;
@@ -92,7 +95,7 @@ void	validate_map_solvability(t_map *map, int player_x, int player_y)
 
 	copy = duplicate_map(map->grid, map->h);
 	if (!copy)
-		error_exit("Memory error during map copy");
+		error_exit("Memory error during map copy", NULL);
 	flood_fill(copy, player_x, player_y);
 	if (has_unreachable_items(copy, map->w, map->h))
 	{
@@ -100,7 +103,7 @@ void	validate_map_solvability(t_map *map, int player_x, int player_y)
 		while (i < map->h)
 			free(copy[i++]);
 		free(copy);
-		error_exit("Error: Map is unsolvable");
+		error_exit("Error: Map is unsolvable", NULL);
 	}
 	i = 0;
 	while (i < map->h)
