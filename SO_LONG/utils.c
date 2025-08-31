@@ -9,21 +9,18 @@
 /*   Updated: 2025/08/04 16:38:26 by foogungb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "so_long.h"
-#include "GetNextLine/get_next_line.h"
 
-void	check_map(t_map *map)
+int	ft_strcmp(char *s1, char *s2)
 {
-	int	px;
-	int	py;
-
-	if (!find_player_position(map, &px, &py))
+	while (*s1 && *s2)
 	{
-		free_map_struct(map);
-		error_exit("No player found on map.", NULL);
+		if (*s1 != *s2)
+			return ((unsigned char)*s1 - (unsigned char)*s2);
+		s1++;
+		s2++;
 	}
-	validate_map_solvability(map, px, py);
+	return ((unsigned char)*s1 - (unsigned char)*s2);
 }
 
 size_t	ft_strcspn(const char *s, const char *reject)
@@ -71,7 +68,7 @@ int	get_map_height(const char *filename)
 	if (!last_nline)
 		height++;
 	if (close(fd) == -1)
-		error_exit("Could not close file", NULL);
+		error_exit("Could not close file", NULL, NULL);
 	return (height);
 }
 

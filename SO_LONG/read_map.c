@@ -11,14 +11,14 @@ static char	**gnl(int fd, int height, char **map)
 	while (line && i < height)
 	{
 		if (!line)
-			error_exit("Map has fewer lines", NULL);
+			error_exit("Error: Map has fewer lines", NULL, NULL);
 		line[ft_strcspn(line, "\n")] = '\0';
 		map[i] = ft_strdup(line);
 		if (!map[i])
 		{
 			free(line);
 			free_map(map, i);
-			error_exit("duplication failed!", NULL);
+			error_exit("Error: duplication failed!", NULL, NULL);
 		}
 		free(line);
 		i++;
@@ -28,41 +28,41 @@ static char	**gnl(int fd, int height, char **map)
 	return (map);
 }
 
-char	**load_map(const char *filename, int *height)
+static char	**load_map(const char *filename, t_game *game)
 {
 	int		fd;
+	int		height;
 	char	**map;
 
-	*height = get_map_height(filename);
-	map = (char **)malloc(sizeof(char *) * (*height + 1));
+	height = get_map_height(filename);
+	game->map->h = height;
+	map = (char **)malloc(sizeof(char *) * (height + 1));
 	if (!map)
-		error_exit("Malloc failed!", NULL);
+		error_exit("Error: Malloc failed!", game, NULL);
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
-		error_exit("Failed to open map file", NULL);
-	map = gnl(fd, *height, map);
+		error_exit("Error: Failed to open map file", game, map);
+	map = gnl(fd, height, map);
+	if (!map)
+		error_exit("Error in gnl", game, map);
 	if (close(fd) == -1)
-		error_exit("Failed closing file", NULL);
+		error_exit("Error: Failed closing file", game, map);
 	return (map);
 }
 
-t_map	*read_map(const char *filename)
+t_map	*read_map(const char *filename, t_game *game)
 {
-	t_map	*map;
-
-	map = malloc(sizeof(t_map));
-	if (!map)
-		error_exit("Malloc failed to create map!", NULL);
-	map->grid = load_map(filename, &map->h);
-	if (!map->grid || map->h == 0 || !map->grid[0])
-	{
-		free_map_struct(map);
-		error_exit("Map is not defined!", NULL);
-	}
-	map->w = ft_strlen(map->grid[0]);
-	map->p_count = 0;
-	map->e_count = 0;
-	map->c_count = 0;
-	check_map(map);
-	return (map);
+	game->map = malloc(sizeof(t_map));
+	if (!game->map)
+		error_exit("Error: Malloc failed to create map!", game, NULL);
+	game->map->grid = NULL;
+	game->map->grid = load_map(filename, game);
+	if (!game->map->grid || game->map->h == 0 || !game->map->grid[0])
+		error_exit("Error: Map is not defined!", game, NULL);
+	game->map->w = ft_strlen(game->map->grid[0]);
+	game->map->p_count = 0;
+	game->map->e_count = 0;
+	game->map->c_count = 0;
+	validate_map(game);
+	return (game->map);
 }

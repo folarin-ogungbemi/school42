@@ -1,55 +1,69 @@
 #include "so_long.h"
 #include "GetNextLine/get_next_line.h"
 
-static void	x_axis(t_map *map, int *y, t_game *game)
+static void	col_axis(t_game *game, char **v_map, int *y)
 {
 	char	c;
 	int		x;
 
 	x = 0;
-	while (x < map->w)
+	while (x < game->map->w)
 	{
-		c = map->grid[*y][x];
+		c = game->map->grid[*y][x];
 		if (c != '0' && c != '1' && c != 'P' && c != 'E' && c != 'C')
-			error_exit("Invalid character in map", game);
+			error_exit("Error: Invalid character in map", game, v_map);
+		if ((*y == 0 || *y == game->map->h - 1 || x == 0
+				|| x == game->map->w - 1) && c != '1')
+			error_exit("Error: Map must be surrounded by walls", game, v_map);
 		if (c == 'P')
 		{
-			map->p_count++;
+			game->map->p_count++;
 			game->player_x = x;
 			game->player_y = *y;
-			map->grid[*y][x] = '0';
+			v_map[*y][x] = '0';
 		}
 		else if (c == 'E')
-			map->e_count++;
+			game->map->e_count++;
 		else if (c == 'C')
-			map->c_count++;
-		if ((*y == 0 || *y == map->h - 1 || x == 0 || x == map->w - 1)
-			&& c != '1')
-			error_exit("Map must be surrounded by walls", game);
+			game->map->c_count++;
 		x++;
 	}
 }
 
-void	validate_map(t_map *map, t_game *game)
+static void	check_map(t_game *game, char **copy)
 {
-	int	y;
+	if (game->map->p_count != 1)
+		error_exit("Error: Map must have exactly one player", game, copy);
+	if (game->map->e_count != 1)
+		error_exit("Error: Map must have exactly one exit", game, copy);
+	if (game->map->c_count < 1)
+		error_exit("Error: Map must have at least one collectible", game, copy);
+	flood_fill(copy, game->player_y, game->player_x);
+	if (has_unreachable_items(copy, game->map->w, game->map->h))
+		error_exit("Error: Map is unsolvable", game, copy);
+	free_map(copy, game->map->h);
+}
 
-	if (!map || !map->grid || map->w <= 0 || map->h <= 0)
-		error_exit("Invalid map", game);
+void	validate_map(t_game *game)
+{
+	char	**copy;
+	int		y;
+
+	if (!game->map || !game->map->grid || game->map->w <= 0
+		|| game->map->h <= 0)
+		error_exit("Error: Invalid map", game, NULL);
+	copy = duplicate_map(game->map->grid, game->map->h);
+	if (!copy)
+		error_exit("Memory error during map copy", game, copy);
 	y = 0;
-	while (y < map->h)
+	while (y < game->map->h)
 	{
-		if (!map->grid[y])
-			error_exit("Invalid map row", game);
-		if ((int)ft_strlen(map->grid[y]) != map->w)
-			error_exit("Map is not rectangular", game);
-		x_axis(map, &y, game);
+		if (!game->map->grid[y])
+			error_exit("Error: Invalid map y", game, copy);
+		if ((int)ft_strlen(game->map->grid[y]) != game->map->w)
+			error_exit("Error: Map is not rectangular", game, copy);
+		col_axis(game, copy, &y);
 		y++;
 	}
-	if (map->p_count != 1)
-		error_exit("Map must have exactly one player", game);
-	if (map->e_count < 1)
-		error_exit("Map must have at least one exit", game);
-	if (map->c_count < 1)
-		error_exit("Map must have at least one collectible", game);
+	check_map(game, copy);
 }
